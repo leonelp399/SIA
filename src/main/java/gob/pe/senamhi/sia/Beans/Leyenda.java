@@ -20,5 +20,7 @@ public class Leyenda implements Serializable{
 	private String area;
 	
 	private String perimetro;
+	
+	private String periodo;
 
 }

@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name="AFECTACION")
+@Table(name="RIESGO_VALORES")
 @Data
 public class Mes implements Serializable{
 	

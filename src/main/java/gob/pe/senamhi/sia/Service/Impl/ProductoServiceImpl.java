@@ -5,15 +5,12 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.google.gson.Gson;
 
 import gob.pe.senamhi.sia.Beans.Dep;
 import gob.pe.senamhi.sia.Beans.Historial;
@@ -22,17 +19,25 @@ import gob.pe.senamhi.sia.Beans.Mes;
 import gob.pe.senamhi.sia.Beans.Nivel;
 import gob.pe.senamhi.sia.Beans.NivelPrioridad;
 import gob.pe.senamhi.sia.Beans.Prioridad;
+import gob.pe.senamhi.sia.Beans.Producto;
 import gob.pe.senamhi.sia.Beans.Prov;
 import gob.pe.senamhi.sia.Beans.Valor;
 import gob.pe.senamhi.sia.Dao.MesDao;
 import gob.pe.senamhi.sia.Dao.NivelDao;
+import gob.pe.senamhi.sia.Dao.ProductoDao;
 import gob.pe.senamhi.sia.Dao.ValorDao;
-import gob.pe.senamhi.sia.Service.CultivoHistorialService;
+import gob.pe.senamhi.sia.Service.ProductoService;
 
 @Service
-public class CultivoHistorialServiceImpl implements CultivoHistorialService{
+public class ProductoServiceImpl implements ProductoService{
 	
-	private static final Logger LOGGER = LogManager.getLogger(CultivoHistorialServiceImpl.class);
+	private static final Logger LOGGER = LogManager.getLogger(ProductoServiceImpl.class);
+	private static final String ESQUEMA_MONITOREO = "db04";
+	private static final String ESQUEMA_RIESGO = "db11";
+	private static final String ESQUEMA_PRONOSTICO = "db03";
+	
+	@Autowired
+	private ProductoDao productoDao;
 	
 	@Autowired
 	private MesDao mesDao;
@@ -41,13 +46,52 @@ public class CultivoHistorialServiceImpl implements CultivoHistorialService{
 	private ValorDao valorDao;
 	
 	@Autowired
-	private NivelDao nivelDao; 
-	
+	private NivelDao nivelDao;
+
 	@Override
-	public List<String> ObtenerAnios(String cultivo) throws Exception {
+	public Producto ObtenerProducto(String esquema, String tabla) throws Exception {
+		try {
+			Producto producto = productoDao.findById(esquema, tabla);
+			if(producto == null) {
+				throw new Exception();
+			}
+			return producto;
+		} catch (DataException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			throw new Exception();
+		}
+	}
+
+	@Override
+	public String guardarFicha(Producto request) throws Exception {
+		String result = "GUARDO";
+        try {
+        	productoDao.sp_ficha_informativa(
+                    request.getEsquema(),
+                    request.getTabla().replaceAll("_", "."),
+                    request.getEnlace()
+            );
+        } catch (DataException e) {
+        	LOGGER.error(e.getCause().getCause().getLocalizedMessage());
+        	throw new Exception();
+        }
+        return result;
+	}
+
+	@Override
+	public List<String> ObtenerAnios(String esquema,String tabla) throws Exception {
 		try {
 			ArrayList<String> response = new ArrayList<String>();
-			List<Mes> list = mesDao.findYears(Integer.parseInt(cultivo));
+			List<Mes> list = new ArrayList<Mes>();
+			
+			if(esquema.equalsIgnoreCase(ESQUEMA_RIESGO)) {
+				list = mesDao.findYearsRiesgo(esquema,tabla);
+			}else if(esquema.equalsIgnoreCase(ESQUEMA_MONITOREO)) {
+				list = mesDao.findYearsMonitoreo(esquema,tabla);
+			}else if(esquema.equalsIgnoreCase(ESQUEMA_PRONOSTICO)) {
+				list = mesDao.findYearsPronostico(esquema,tabla);
+			}
+			
 			if(list.size() == 0) {
 				throw new Exception();
 			}
@@ -62,10 +106,17 @@ public class CultivoHistorialServiceImpl implements CultivoHistorialService{
 	}
 
 	@Override
-	public List<String> ObtenerMeses(String cultivo,String anio) throws Exception {
+	public List<String> ObtenerMeses(String esquema, String tabla, String anio) throws Exception {
 		try {
 			ArrayList<String> response = new ArrayList<String>();
-			List<Mes> list = mesDao.findMonths(Integer.parseInt(cultivo),Integer.parseInt(anio));
+			List<Mes> list = new ArrayList<Mes>();
+			if(esquema.equalsIgnoreCase(ESQUEMA_RIESGO)) {
+				list = mesDao.findMonthsRiesgo(esquema,tabla,Integer.parseInt(anio));
+			}else if(esquema.equalsIgnoreCase(ESQUEMA_MONITOREO)) {
+				list = mesDao.findMonthsMonitoreo(esquema,tabla,Integer.parseInt(anio));
+			}else if(esquema.equalsIgnoreCase(ESQUEMA_PRONOSTICO)) {
+				list = mesDao.findMonthsMonitoreo(esquema,tabla,Integer.parseInt(anio));
+			}
 			if(list.size() == 0) {
 				throw new Exception();
 			}
@@ -80,25 +131,30 @@ public class CultivoHistorialServiceImpl implements CultivoHistorialService{
 	}
 
 	@Override
-	public Historial ObtenerHistorial(String cultivo, String mes, String anio) throws Exception {
+	public Historial ObtenerHistorial(String esquema, String tabla, String anio, String mes) throws Exception {
 		try {
 			Historial response = new Historial();
-			List<Valor> list = valorDao.findValores(Integer.parseInt(cultivo), Integer.parseInt(mes), Integer.parseInt(anio));
+			List<Valor> list = new ArrayList<Valor>();
+			if(esquema.equalsIgnoreCase(ESQUEMA_RIESGO)) {
+				list = valorDao.findValoresRiesgo(esquema, tabla, Integer.parseInt(anio), Integer.parseInt(mes));
+			}else if(esquema.equalsIgnoreCase(ESQUEMA_MONITOREO)) {
+				list = valorDao.findValoresMonitoreo(esquema, tabla, Integer.parseInt(anio), Integer.parseInt(mes));
+			}
 			if(list.size() == 0) {
 				throw new Exception();
 			}
-			String img = null, cult = null;
+			String img = null;
 			ArrayList<Leyenda> ll = new ArrayList<Leyenda>();
 			for(Valor v : list) {
 				Leyenda l = new Leyenda();
 				org.springframework.beans.BeanUtils.copyProperties(v, l);
+				if(esquema.equalsIgnoreCase(ESQUEMA_RIESGO))
+					l.setPerimetro(null);
 				ll.add(l);
 				img = v.getImagen();
-				cult = v.getCultivo();
 			}
 			response.setLeyenda(ll);
 			response.setImagen(img);
-			response.setCultivo(cult);
 			return response;
 		} catch (DataException e) {
 			LOGGER.error(e.getLocalizedMessage());
@@ -110,20 +166,25 @@ public class CultivoHistorialServiceImpl implements CultivoHistorialService{
 	}
 
 	@Override
-	public Prioridad ObtenerPrioridad(String cultivo) throws Exception {
+	public Prioridad ObtenerUbigeo(String esquema, String tabla) throws Exception {
 		try {
 			Prioridad response = new Prioridad();
-			List<Nivel> list = nivelDao.findPrioridadByCultivo(Integer.parseInt(cultivo));
+			List<Nivel> list = new ArrayList<Nivel>();
+			if(esquema.equalsIgnoreCase(ESQUEMA_RIESGO)) {
+				list = nivelDao.findUbigeoByRiesgo(esquema, tabla);
+			}else if(esquema.equalsIgnoreCase(ESQUEMA_MONITOREO)) {
+				list = nivelDao.findUbigeoByMonitoreo(esquema, tabla);
+			}else if(esquema.equalsIgnoreCase(ESQUEMA_PRONOSTICO)) {
+				list = nivelDao.findUbigeoByPronostico(esquema, tabla);
+			}
 			if(list.size() == 0) {
 				throw new Exception();
 			}
 			String max="",fecha="";
 			List<NivelPrioridad> lnp = new ArrayList<NivelPrioridad>();
 			for(Nivel n : list) {
-				if(n.getPrioridad().equals("1")) {
-					max=n.getDescripcion();
-					fecha=n.getFecha();
-				}
+				max=n.getDescripcion();
+				fecha=n.getFecha();
 				NivelPrioridad np = new NivelPrioridad();
 				np.setLeyenda(n.getDescripcion());
 				List<Dep> ld = new ArrayList<Dep>();

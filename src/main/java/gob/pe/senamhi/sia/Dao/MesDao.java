@@ -12,24 +12,91 @@ import gob.pe.senamhi.sia.Beans.Mes;
 public interface MesDao extends JpaRepository<Mes,String>{
 	
 	
-	@Query(nativeQuery = true, value = "SELECT ROWNUM LINEA,\r\n"
-								 + "           ANIO,\r\n"
-								 + "           '' MES\r\n"
-								 + "      FROM (\r\n"
-								 + "    SELECT EXTRACT(YEAR FROM A.FECHA) ANIO\r\n"
-								 + "      FROM AFECTACION A \r\n"
-								 + "           INNER JOIN VALORES V ON V.LEYENDA_ID=A.LEYENDA_ID AND V.CULTIVO_ID=?1\r\n"
-								 + "     GROUP BY EXTRACT(YEAR FROM A.FECHA))")
-	List<Mes> findYears(Integer cultivo);
+	@Query(nativeQuery = true, value = "SELECT ROWNUM LINEA,\r\n" + 
+										"       ANIO,\r\n" + 
+										"       '' MES\r\n" + 
+										" FROM (\r\n" + 
+										"     SELECT EXTRACT(YEAR FROM RV.FECHA) ANIO\r\n" + 
+										"       FROM RIESGO_VALORES RV\r\n" + 
+										"            INNER JOIN LEYENDA L ON L.ID=RV.LEYENDA_ID\r\n" + 
+										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										"      WHERE P.ESQUEMA = ?1\r\n" + 
+										"        AND P.TABLA = ?2\r\n" + 
+										"      GROUP BY EXTRACT(YEAR FROM RV.FECHA)\r\n" + 
+										"      )")
+	List<Mes> findYearsRiesgo(String esquema, String tabla);
 	
-	@Query(nativeQuery = true, value = "SELECT ROWNUM LINEA,\r\n"
-								 + "          '' ANIO,\r\n"
-								 + "          LPAD(MES,2,'0') MES\r\n"
-								 + "     FROM (\r\n"
-								 + "    SELECT EXTRACT(MONTH FROM A.FECHA) MES\r\n"
-								 + "      FROM AFECTACION A\r\n"
-								 + "           INNER JOIN VALORES V ON V.LEYENDA_ID=A.LEYENDA_ID AND V.CULTIVO_ID=?1\r\n"
-								 + "     WHERE EXTRACT(YEAR FROM A.FECHA) = ?2\r\n"
-								 + "     GROUP BY EXTRACT(MONTH FROM A.FECHA))")
-	List<Mes> findMonths(Integer cultivo,Integer anio);
+	@Query(nativeQuery = true, value = "SELECT ROWNUM LINEA,\r\n" + 
+										"       '' ANIO,\r\n" + 
+										"       LPAD(MES,2,'0') MES\r\n" + 
+										"  FROM (\r\n" + 
+										"    SELECT EXTRACT(MONTH FROM RV.FECHA) MES\r\n" + 
+										"       FROM RIESGO_VALORES RV\r\n" + 
+										"            INNER JOIN LEYENDA L ON L.ID=RV.LEYENDA_ID\r\n" + 
+										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										"      WHERE P.ESQUEMA = ?1\r\n" + 
+										"        AND P.TABLA = ?2\r\n" + 
+										"        AND EXTRACT(YEAR FROM RV.FECHA) = ?3\r\n" + 
+										"      GROUP BY EXTRACT(MONTH FROM RV.FECHA)\r\n" + 
+										"     )")
+	List<Mes> findMonthsRiesgo(String esquema, String tabla, Integer anio);
+	
+	@Query(nativeQuery = true, value = "SELECT ROWNUM LINEA,\r\n" + 
+										"       ANIO,\r\n" + 
+										"       '' MES\r\n" + 
+										" FROM (\r\n" + 
+										"     SELECT EXTRACT(YEAR FROM MV.FECHA) ANIO\r\n" + 
+										"       FROM MONITOREO_VALORES MV\r\n" + 
+										"            INNER JOIN LEYENDA L ON L.ID=MV.LEYENDA_ID\r\n" + 
+										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										"      WHERE P.ESQUEMA = ?1\r\n" + 
+										"        AND P.TABLA = ?2\r\n" + 
+										"      GROUP BY EXTRACT(YEAR FROM MV.FECHA)\r\n" + 
+										"      )")
+	List<Mes> findYearsPronostico(String esquema, String tabla);
+	
+	@Query(nativeQuery = true, value = "SELECT ROWNUM LINEA,\r\n" + 
+										"       '' ANIO,\r\n" + 
+										"       LPAD(MES,2,'0') MES\r\n" + 
+										"  FROM (\r\n" + 
+										"    SELECT EXTRACT(MONTH FROM MV.FECHA) MES\r\n" + 
+										"       FROM MONITOREO_VALORES MV\r\n" + 
+										"            INNER JOIN LEYENDA L ON L.ID=MV.LEYENDA_ID\r\n" + 
+										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										"      WHERE P.ESQUEMA = ?1\r\n" + 
+										"        AND P.TABLA = ?2\r\n" + 
+										"        AND EXTRACT(YEAR FROM MV.FECHA) = ?3\r\n" + 
+										"      GROUP BY EXTRACT(MONTH FROM MV.FECHA)\r\n" + 
+										"     )")
+	List<Mes> findMonthsPronostico(String esquema, String tabla, Integer anio);
+	
+	
+	@Query(nativeQuery = true, value = "SELECT ROWNUM LINEA,\r\n" + 
+										"       ANIO,\r\n" + 
+										"       '' MES\r\n" + 
+										" FROM (\r\n" + 
+										"     SELECT EXTRACT(YEAR FROM PV.FECHA) ANIO\r\n" + 
+										"       FROM PRONOSTICO_VALORES PV\r\n" + 
+										"            INNER JOIN LEYENDA L ON L.ID=PV.LEYENDA_ID\r\n" + 
+										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										"      WHERE P.ESQUEMA = ?1\r\n" + 
+										"        AND P.TABLA = ?2\r\n" + 
+										"      GROUP BY EXTRACT(YEAR FROM PV.FECHA)\r\n" + 
+										"      )")
+	List<Mes> findYearsMonitoreo(String esquema, String tabla);
+	
+	@Query(nativeQuery = true, value = "SELECT ROWNUM LINEA,\r\n" + 
+										"       '' ANIO,\r\n" + 
+										"       LPAD(MES,2,'0') MES\r\n" + 
+										"  FROM (\r\n" + 
+										"    SELECT EXTRACT(MONTH FROM PV.FECHA) MES\r\n" + 
+										"       FROM PRONOSTICO_VALORES PV\r\n" + 
+										"            INNER JOIN LEYENDA L ON L.ID=PV.LEYENDA_ID\r\n" + 
+										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										"      WHERE P.ESQUEMA = ?1\r\n" + 
+										"        AND P.TABLA = ?2\r\n" + 
+										"        AND EXTRACT(YEAR FROM PV.FECHA) = ?3\r\n" + 
+										"      GROUP BY EXTRACT(MONTH FROM PV.FECHA)\r\n" + 
+										"     )")
+	List<Mes> findMonthsMonitoreo(String esquema, String tabla, Integer anio);
 }

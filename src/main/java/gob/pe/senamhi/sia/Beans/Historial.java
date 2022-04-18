@@ -16,8 +16,6 @@ public class Historial implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
-	private String cultivo;
-	
 	private String imagen;
 	
 	private List<Leyenda> leyenda;

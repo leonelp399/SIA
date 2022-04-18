@@ -11,22 +11,57 @@ import gob.pe.senamhi.sia.Beans.Valor;
 @Repository
 public interface ValorDao extends JpaRepository<Valor, String>{
 	
-	@Query(nativeQuery = true, value = "SELECT V.CULTIVO_ID,\r\n"
-									 + "       C.NOMBRE CULTIVO, \r\n"
-									 + "       V.LEYENDA_ID,\r\n"
-									 + "       L.NOMBRE LEYENDA,\r\n"
-									 + "       V.AREA,\r\n"
-									 + "       V.PERIMETRO,\r\n"
-									 + "       I.IMAGEN\r\n"
-									 + "  FROM VALORES V\r\n"
-									 + "       INNER JOIN CULTIVO C ON V.CULTIVO_ID=C.ID\r\n"
-									 + "       INNER JOIN LEYENDA L ON V.LEYENDA_ID=L.ID\r\n"
-									 + "       LEFT JOIN IMAGEN_CULTIVO I ON I.CULTIVO_ID=C.ID AND  EXTRACT(MONTH FROM V.FECHA)=EXTRACT(MONTH FROM I.FECHA) AND EXTRACT(YEAR FROM V.FECHA)=EXTRACT(YEAR FROM I.FECHA)\r\n"
-									 + " WHERE C.ID = ?1\r\n"
-									 + "   AND EXTRACT(MONTH FROM V.FECHA) = ?2\r\n"
-									 + "   AND EXTRACT(YEAR FROM V.FECHA) = ?3\r\n"
-									 + " GROUP BY V.CULTIVO_ID,C.NOMBRE,V.LEYENDA_ID,L.NOMBRE,V.AREA,V.PERIMETRO,I.IMAGEN\r\n"
-									 + " ORDER BY V.CULTIVO_ID, V.LEYENDA_ID ")
-	List<Valor> findValores(Integer cultivo, Integer mes, Integer anio);
+	@Query(nativeQuery = true, value = "SELECT ID,\r\n" + 
+										"       NOMBRE,\r\n" + 
+										"       SUM(AREA) AREA,\r\n" + 
+										"       SUM(PERIMETRO) PERIMETRO,\r\n" + 
+										"       IMAGEN,\r\n" +
+										"       '' PERIODO\r\n" + 
+										" FROM(\r\n" + 
+										"        SELECT L.ID ,\r\n" + 
+										"               L.NOMBRE,\r\n" + 
+										"               RV.AREA,\r\n" + 
+										"               RV.PERIMETRO,\r\n" + 
+										"               I.IMAGEN\r\n" + 
+										"          FROM RIESGO_VALORES RV \r\n" + 
+										"               INNER JOIN LEYENDA L ON L.ID=RV.LEYENDA_ID\r\n" + 
+										"               INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										"               LEFT JOIN IMAGEN I ON I.PRODUCTO_ID=P.ID AND EXTRACT(YEAR FROM RV.FECHA)=EXTRACT(YEAR FROM I.FECHA) AND EXTRACT(MONTH FROM RV.FECHA)=EXTRACT(MONTH FROM I.FECHA)\r\n" + 
+										"         WHERE P.ESQUEMA = ?1\r\n" + 
+										"           AND P.TABLA = ?2\r\n" + 
+										"           AND EXTRACT(YEAR FROM RV.FECHA) = ?3\r\n" + 
+										"           AND EXTRACT(MONTH FROM RV.FECHA) = ?4\r\n" + 
+										"         GROUP BY L.ID,L.NOMBRE,RV.AREA,RV.PERIMETRO,I.IMAGEN\r\n" + 
+										"         ORDER BY L.ID)\r\n" + 
+										" GROUP BY ID,NOMBRE,IMAGEN\r\n" + 
+										" ORDER BY ID")
+	List<Valor> findValoresRiesgo(String esquema,String tabla, Integer anio, Integer mes);
+	
+	@Query(nativeQuery = true, value = " SELECT ID,\r\n" + 
+										"       NOMBRE,\r\n" + 
+										"       SUM(AREA) AREA,\r\n" + 
+										"       SUM(PERIMETRO) PERIMETRO,\r\n" + 
+										"       PERIODO,\r\n" + 
+										"       IMAGEN\r\n" + 
+										" FROM(\r\n" + 
+										"        SELECT L.ID ,\r\n" + 
+										"               L.NOMBRE,\r\n" + 
+										"               MV.AREA,\r\n" + 
+										"               MV.PERIMETRO,\r\n" + 
+										"               MV.PERIODO,\r\n" + 
+										"               I.IMAGEN\r\n" + 
+										"          FROM MONITOREO_VALORES MV \r\n" + 
+										"               INNER JOIN LEYENDA L ON L.ID=MV.LEYENDA_ID\r\n" + 
+										"               INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										"               LEFT JOIN IMAGEN I ON I.PRODUCTO_ID=P.ID AND EXTRACT(YEAR FROM MV.FECHA)=EXTRACT(YEAR FROM I.FECHA) AND EXTRACT(MONTH FROM MV.FECHA)=EXTRACT(MONTH FROM I.FECHA)\r\n" + 
+										"         WHERE P.ESQUEMA = ?1\r\n" + 
+										"           AND P.TABLA = ?2\r\n" + 
+										"           AND EXTRACT(YEAR FROM MV.FECHA) = ?3\r\n" + 
+										"           AND EXTRACT(MONTH FROM MV.FECHA) = ?4\r\n" + 
+										"         GROUP BY L.ID,L.NOMBRE,MV.AREA,MV.PERIMETRO,MV.PERIODO,I.IMAGEN\r\n" + 
+										"         ORDER BY L.ID)\r\n" + 
+										" GROUP BY ID,NOMBRE,PERIODO,IMAGEN\r\n" + 
+										" ORDER BY ID")
+	List<Valor> findValoresMonitoreo(String esquema,String tabla, Integer anio, Integer mes);
 	
 }

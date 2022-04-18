@@ -7,26 +7,26 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import lombok.Data;
 
 @Entity
 @Table(name="VALORES")
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(value = Include.NON_NULL)
 public class Valor implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
-	@Column(name = "CULTIVO_ID")
-	private String cultivoId;
-	
-	@Column(name = "CULTIVO")
-	private String cultivo;
-	
 	@Id
-	@Column(name = "LEYENDA_ID")
+	@Column(name = "ID")
 	private String leyendaId;
 	
-	@Column(name = "LEYENDA")
+	@Column(name = "NOMBRE")
 	private String descripcion;
 	
 	@Column(name = "AREA")
@@ -34,6 +34,9 @@ public class Valor implements Serializable{
 	
 	@Column(name = "PERIMETRO")
 	private String perimetro;
+	
+	@Column(name = "PERIODO")
+	private String periodo;
 	
 	@Column(name = "IMAGEN")
 	private String imagen;
