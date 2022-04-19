@@ -1,0 +1,210 @@
+{
+	"info": {
+		"_postman_id": "ab5ba0cb-ed3d-4bd0-b207-8f4cb387adf1",
+		"name": "SIA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nombreUsuario\":\"amachco\",\r\n    \"password\":\"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:90/login",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Datos Producto",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:90/producto/db11/11.01.001.03.001.531.0000.00.00",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"producto",
+						"db11",
+						"11.01.001.03.001.531.0000.00.00"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Productos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:90/producto",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"producto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizacion de Ficha",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"esquema\":\"db11\",\r\n    \"tabla\":\"11.01.001.03.001.531.0000.00.00\",\r\n    \"enlace\":\"enlace de pdf arroz\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:90/producto/ficha",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"producto",
+						"ficha"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Año",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:90/producto/anio/db11/11.01.001.03.001.531.0000.00.00",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"producto",
+						"anio",
+						"db11",
+						"11.01.001.03.001.531.0000.00.00"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Mes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:90/producto/mes/db11/11.01.001.03.001.531.0000.00.00/2022",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"producto",
+						"mes",
+						"db11",
+						"11.01.001.03.001.531.0000.00.00",
+						"2022"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Historial",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:90/producto/historial/db11/11.01.001.03.001.531.0000.00.00/2022/02",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"producto",
+						"historial",
+						"db11",
+						"11.01.001.03.001.531.0000.00.00",
+						"2022",
+						"02"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Ubigeo",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:90/producto/ubigeo/db11/11.01.001.03.001.531.0000.00.00",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"producto",
+						"ubigeo",
+						"db11",
+						"11.01.001.03.001.531.0000.00.00"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Guardar Imagen",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:90/producto/imagen/db11/11.01.001.03.001.531.0000.00.00",
+					"host": [
+						"localhost"
+					],
+					"port": "90",
+					"path": [
+						"producto",
+						"imagen",
+						"db11",
+						"11.01.001.03.001.531.0000.00.00"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
