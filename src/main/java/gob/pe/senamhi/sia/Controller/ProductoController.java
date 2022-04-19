@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import gob.pe.senamhi.sia.Beans.Historial;
-import gob.pe.senamhi.sia.Beans.Prioridad;
 import gob.pe.senamhi.sia.Beans.Producto;
 import gob.pe.senamhi.sia.Service.ProductoService;
 
@@ -32,7 +31,18 @@ public class ProductoController {
 			@PathVariable String tabla
 			){
 		try {
-			Producto response = productoService.ObtenerProducto(esquema, tabla.replaceAll("_", "."));
+			Producto response = productoService.ObtenerProducto(esquema, tabla.replace("_", "."));
+			return new ResponseEntity<>(response,HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping(value="")
+	public ResponseEntity<List<Producto>> obtenerProductos(
+			){
+		try {
+			List<Producto> response = productoService.ObtenerProductos();
 			return new ResponseEntity<>(response,HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -55,7 +65,7 @@ public class ProductoController {
 			@PathVariable String tabla
 			){
 		try {
-			List<String> response = productoService.ObtenerAnios(esquema,tabla.replaceAll("_", "."));
+			List<String> response = productoService.ObtenerAnios(esquema,tabla.replace("_", "."));
 			return new ResponseEntity<>(response,HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -69,7 +79,7 @@ public class ProductoController {
 			@PathVariable String anio
 			){
 		try {
-			List<String> response = productoService.ObtenerMeses(esquema,tabla.replaceAll("_", "."),anio);
+			List<String> response = productoService.ObtenerMeses(esquema,tabla.replace("_", "."),anio);
 			return new ResponseEntity<>(response,HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -84,21 +94,34 @@ public class ProductoController {
 			@PathVariable String mes
 			){
 		try {
-			Historial response = productoService.ObtenerHistorial(esquema, tabla.replaceAll("_", "."), anio, mes);
+			Historial response = productoService.ObtenerHistorial(esquema, tabla.replace("_", "."), anio, mes);
 			return new ResponseEntity<>(response,HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
-	@GetMapping(value="/Ubigeo/{esquema}/{tabla}")
-	public ResponseEntity<Prioridad> obtenerUbigeo(
+	@GetMapping(value="/ubigeo/{esquema}/{tabla}")
+	public ResponseEntity<String> obtenerUbigeo(
 			@PathVariable String esquema,
 			@PathVariable String tabla
 			){
 		try {
-			Prioridad response = productoService.ObtenerUbigeo(esquema, tabla.replaceAll("_", "."));
-			return new ResponseEntity<>(response,HttpStatus.OK);
+			productoService.ObtenerUbigeo(esquema, tabla.replace("_", "."));
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping(value="/imagen/{esquema}/{tabla}")
+	public ResponseEntity<String> ingresarImagen(
+			@PathVariable String esquema,
+			@PathVariable String tabla
+			){
+		try {
+			productoService.IngresarImagen(esquema, tabla.replace(".", "_"));
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

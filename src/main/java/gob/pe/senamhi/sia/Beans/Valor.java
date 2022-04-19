@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -38,6 +39,7 @@ public class Valor implements Serializable{
 	@Column(name = "PERIODO")
 	private String periodo;
 	
+	@Lob
 	@Column(name = "IMAGEN")
 	private String imagen;
 }

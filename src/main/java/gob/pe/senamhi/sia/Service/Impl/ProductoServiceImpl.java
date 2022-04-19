@@ -1,8 +1,13 @@
 package gob.pe.senamhi.sia.Service.Impl;
 
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.ResourceBundle;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
@@ -11,6 +16,8 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
 
 import gob.pe.senamhi.sia.Beans.Dep;
 import gob.pe.senamhi.sia.Beans.Historial;
@@ -61,6 +68,20 @@ public class ProductoServiceImpl implements ProductoService{
 			throw new Exception();
 		}
 	}
+	
+	@Override
+	public List<Producto> ObtenerProductos() throws Exception {
+		try {
+			List<Producto> productos = productoDao.findByAll();
+			if(productos == null) {
+				throw new Exception();
+			}
+			return productos;
+		} catch (DataException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			throw new Exception();
+		}
+	}
 
 	@Override
 	public String guardarFicha(Producto request) throws Exception {
@@ -68,7 +89,7 @@ public class ProductoServiceImpl implements ProductoService{
         try {
         	productoDao.sp_ficha_informativa(
                     request.getEsquema(),
-                    request.getTabla().replaceAll("_", "."),
+                    request.getTabla().replace("_", "."),
                     request.getEnlace()
             );
         } catch (DataException e) {
@@ -143,7 +164,6 @@ public class ProductoServiceImpl implements ProductoService{
 			if(list.size() == 0) {
 				throw new Exception();
 			}
-			String img = null;
 			ArrayList<Leyenda> ll = new ArrayList<Leyenda>();
 			for(Valor v : list) {
 				Leyenda l = new Leyenda();
@@ -151,10 +171,13 @@ public class ProductoServiceImpl implements ProductoService{
 				if(esquema.equalsIgnoreCase(ESQUEMA_RIESGO))
 					l.setPerimetro(null);
 				ll.add(l);
-				img = v.getImagen();
+			}
+			Valor img = valorDao.findImagen(esquema, tabla, Integer.parseInt(anio), Integer.parseInt(mes));
+			if(img == null) {
+				throw new Exception();
 			}
 			response.setLeyenda(ll);
-			response.setImagen(img);
+			response.setImagen(img.getImagen());
 			return response;
 		} catch (DataException e) {
 			LOGGER.error(e.getLocalizedMessage());
@@ -166,7 +189,7 @@ public class ProductoServiceImpl implements ProductoService{
 	}
 
 	@Override
-	public Prioridad ObtenerUbigeo(String esquema, String tabla) throws Exception {
+	public void ObtenerUbigeo(String esquema, String tabla) throws Exception {
 		try {
 			Prioridad response = new Prioridad();
 			List<Nivel> list = new ArrayList<Nivel>();
@@ -218,10 +241,49 @@ public class ProductoServiceImpl implements ProductoService{
 			response.setLeyendas(lnp);
 			response.setMaxLeyenda(max);
 			response.setFecha(fecha);
-			return response;
+			
+			ResourceBundle rs = ResourceBundle.getBundle("config");
+			String ruta = rs.getString("file.ubigeo.ruta")+esquema+"_"+tabla.replace(".", "_")+".json";
+			File file = new File(ruta);
+			if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(new Gson().toJson(response));
+            bw.close();
+			
 		} catch (DataException e) {
 			LOGGER.error(e.getLocalizedMessage());
 			throw new Exception();
+		} catch (Exception e) {
+			LOGGER.error("erro 1 " + e.getMessage());
+			throw new Exception();
+		}
+	}
+
+	@Override
+	public void IngresarImagen(String esquema, String tabla) throws Exception {
+		try {
+			ResourceBundle rs = ResourceBundle.getBundle("config");
+			String[]a=tabla.split("_");
+			String url = rs.getString("idesep.producto.imagen").replace("{1}",a[0]+"_"+a[1]).replace("{2}", tabla);
+			URL imageUrl = new URL(url);
+	        URLConnection ucon = imageUrl.openConnection();
+	        InputStream is = ucon.getInputStream();
+	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	        byte[] buffer = new byte[1024];
+	        int read = 0;
+	        while ((read = is.read(buffer, 0, buffer.length)) != -1) {
+	            baos.write(buffer, 0, read);
+	        }
+	        baos.flush();
+	        String b64 = Base64.getEncoder().encodeToString(baos.toByteArray());
+	        productoDao.sp_imagen(esquema, tabla.replace("_", "."), b64);
+		}catch (DataException e) {
+				LOGGER.error(e.getLocalizedMessage());
+				throw new Exception();
+			    
 		} catch (Exception e) {
 			LOGGER.error("erro 1 " + e.getMessage());
 			throw new Exception();
