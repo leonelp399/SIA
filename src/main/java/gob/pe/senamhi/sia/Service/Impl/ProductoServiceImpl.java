@@ -136,7 +136,7 @@ public class ProductoServiceImpl implements ProductoService{
 			}else if(esquema.equalsIgnoreCase(ESQUEMA_MONITOREO)) {
 				list = mesDao.findMonthsMonitoreo(esquema,tabla,Integer.parseInt(anio));
 			}else if(esquema.equalsIgnoreCase(ESQUEMA_PRONOSTICO)) {
-				list = mesDao.findMonthsMonitoreo(esquema,tabla,Integer.parseInt(anio));
+				list = mesDao.findMonthsPronostico(esquema,tabla,Integer.parseInt(anio));
 			}
 			if(list.size() == 0) {
 				throw new Exception();
@@ -183,6 +183,7 @@ public class ProductoServiceImpl implements ProductoService{
 			LOGGER.error(e.getLocalizedMessage());
 			throw new Exception();
 		} catch (Exception e) {
+			e.printStackTrace();
 			LOGGER.error("erro 1 " + e.getMessage());
 			throw new Exception();
 		}

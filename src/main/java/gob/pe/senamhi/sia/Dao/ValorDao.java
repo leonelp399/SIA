@@ -47,7 +47,7 @@ public interface ValorDao extends JpaRepository<Valor, String>{
 			"										 ORDER BY ID")
 	List<Valor> findValoresRiesgo(String esquema,String tabla, Integer anio, Integer mes);
 	
-	@Query(nativeQuery = true, value = "       SELECT ID, + \r\n" + 
+	@Query(nativeQuery = true, value = "       SELECT ID,\r\n" + 
 			"										       NOMBRE, \r\n" + 
 			"										       SUM(AREA) AREA, \r\n" + 
 			"										       SUM(PERIMETRO) PERIMETRO,\r\n" + 

@@ -46,7 +46,7 @@ public interface MesDao extends JpaRepository<Mes,String>{
 										"       '' MES\r\n" + 
 										" FROM (\r\n" + 
 										"     SELECT EXTRACT(YEAR FROM MV.FECHA) ANIO\r\n" + 
-										"       FROM MONITOREO_VALORES MV\r\n" + 
+										"       FROM PRONOSTICO_VALORES MV\r\n" + 
 										"            INNER JOIN LEYENDA L ON L.ID=MV.LEYENDA_ID\r\n" + 
 										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
 										"      WHERE P.ESQUEMA = ?1\r\n" + 
@@ -60,7 +60,7 @@ public interface MesDao extends JpaRepository<Mes,String>{
 										"       LPAD(MES,2,'0') MES\r\n" + 
 										"  FROM (\r\n" + 
 										"    SELECT EXTRACT(MONTH FROM MV.FECHA) MES\r\n" + 
-										"       FROM MONITOREO_VALORES MV\r\n" + 
+										"       FROM PRONOSTICO_VALORES MV\r\n" + 
 										"            INNER JOIN LEYENDA L ON L.ID=MV.LEYENDA_ID\r\n" + 
 										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
 										"      WHERE P.ESQUEMA = ?1\r\n" + 
@@ -76,7 +76,7 @@ public interface MesDao extends JpaRepository<Mes,String>{
 										"       '' MES\r\n" + 
 										" FROM (\r\n" + 
 										"     SELECT EXTRACT(YEAR FROM PV.FECHA) ANIO\r\n" + 
-										"       FROM PRONOSTICO_VALORES PV\r\n" + 
+										"       FROM MONITOREO_VALORES PV\r\n" + 
 										"            INNER JOIN LEYENDA L ON L.ID=PV.LEYENDA_ID\r\n" + 
 										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
 										"      WHERE P.ESQUEMA = ?1\r\n" + 
@@ -90,7 +90,7 @@ public interface MesDao extends JpaRepository<Mes,String>{
 										"       LPAD(MES,2,'0') MES\r\n" + 
 										"  FROM (\r\n" + 
 										"    SELECT EXTRACT(MONTH FROM PV.FECHA) MES\r\n" + 
-										"       FROM PRONOSTICO_VALORES PV\r\n" + 
+										"       FROM MONITOREO_VALORES PV\r\n" + 
 										"            INNER JOIN LEYENDA L ON L.ID=PV.LEYENDA_ID\r\n" + 
 										"            INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
 										"      WHERE P.ESQUEMA = ?1\r\n" + 
