@@ -80,4 +80,16 @@ public interface NivelDao extends JpaRepository<Nivel, String>{
 										"    ORDER BY L.PRIORIDAD DESC")
 	List<Nivel> findUbigeoByPronostico(String esquema, String tabla);
 	
+	@Query(nativeQuery = true, value = "SELECT L.ID,\r\n" + 
+										"       L.NOMBRE LEYENDA_NOMBRE,\r\n" + 
+										"       L.PRIORIDAD,\r\n" + 
+										"       '' FECHA,\r\n" + 
+										"       '' DEPPROV\r\n" + 
+										"  FROM LEYENDA L\r\n" + 
+										"       INNER JOIN PRODUCTO P ON P.ID=L.PRODUCTO_ID\r\n" + 
+										" WHERE P.ESQUEMA = ?1 \r\n" + 
+										"   AND P.TABLA = ?2\r\n" + 
+										" ORDER BY L.PRIORIDAD")
+	List<Nivel> findLeyendaByProducto(String esquema, String tabla);
+	
 }
